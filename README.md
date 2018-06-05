@@ -50,7 +50,11 @@ Build example
 
 	go get -v github.com/MonitorMetrics/redis
 	cd $GOPATH/src/github.com/MonitorMetrics/redis/examples/json.gpu
-	go build
-	sudo ./json.gpu 
+	go build -o json.gpu.bin
+
+
+Start in debug mode
+
+	sudo ./json.gpu.bin -debug
 
 For more detail, see source code.
