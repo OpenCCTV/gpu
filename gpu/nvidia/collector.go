@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/shuge/falcon_gpu/gpu/helpers"
+	"github.com/MonitorMetrics/gpu/gpu/helpers"
 )
 
 const (
