@@ -5,17 +5,24 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/MonitorMetrics/gpu/gpu"
 )
 
 var (
-	Debug = flag.Bool("debug", false, "")
+	debug bool
 )
 
 func main() {
+	flag.BoolVar(&debug, "debug", false, "")
 	flag.Parse()
-	metrics, err := metricsGPU.Gets(*Debug)
+
+	if debug {
+		log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	}
+
+	metrics, err := metricsGPU.Gets(debug)
 	if err != nil {
 		panic(err)
 	}

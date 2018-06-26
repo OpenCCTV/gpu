@@ -3,6 +3,7 @@ package GPUNvidia
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -15,13 +16,21 @@ var sizeRe = regexp.MustCompile(`([0-9]+)MiB`)
 
 func parseFan(result *map[string]interface{}, line string) {
 	columns := strings.Fields(line)
+	(*result)["fan"] = -1
+
 	if len(columns) <= 0 {
 		log.Println("parse columns failed")
 		return
 	}
+
+	if columns[0] == "N/A" {
+		// some machine return N/A
+		return
+	}
+
 	subMatch := percentRe.FindStringSubmatch(columns[0])
 	if len(subMatch) != 2 {
-		log.Println("match re failed", percentRe, columns[0])
+		log.Println(fmt.Sprintf("match re failed -%s-", columns[0]))
 		return
 	}
 
@@ -63,7 +72,7 @@ func parseMemoryUsage(result *map[string]interface{}, line string) {
 	}
 
 	var subMatch []string
-	subMatch = sizeRe.FindStringSubmatch(columns[0])
+	subMatch = sizeRe.FindStringSubmatch(strings.TrimSpace(columns[0]))
 	if len(subMatch) != 2 {
 		log.Println("match re failed", sizeRe, columns[0])
 		return
@@ -75,7 +84,7 @@ func parseMemoryUsage(result *map[string]interface{}, line string) {
 		return
 	}
 
-	subMatch = sizeRe.FindStringSubmatch(columns[1])
+	subMatch = sizeRe.FindStringSubmatch(strings.TrimSpace(columns[1]))
 	if len(subMatch) != 2 {
 		log.Println("match re failed", sizeRe, columns[1])
 		return
@@ -89,7 +98,7 @@ func parseMemoryUsage(result *map[string]interface{}, line string) {
 
 	var usedPercent float64
 	if total > 0 {
-		usedPercent = float64(used / total * 100)
+		usedPercent = float64(used) / float64(total) * 100
 	} else {
 		usedPercent = 0
 	}
