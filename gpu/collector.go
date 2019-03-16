@@ -1,9 +1,9 @@
 package metricsGPU
 
 import (
-	"github.com/MonitorMetrics/gpu/gpu/helpers"
-	"github.com/MonitorMetrics/gpu/gpu/intel"
-	"github.com/MonitorMetrics/gpu/gpu/nvidia"
+	"github.com/OpenCCTV/gpu/gpu/helpers"
+	"github.com/OpenCCTV/gpu/gpu/intel"
+	"github.com/OpenCCTV/gpu/gpu/nvidia"
 	"log"
 )
 

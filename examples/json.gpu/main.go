@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/MonitorMetrics/gpu/gpu"
+	"github.com/OpenCCTV/gpu/gpu"
 )
 
 var (

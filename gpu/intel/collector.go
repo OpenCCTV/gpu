@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/MonitorMetrics/gpu/gpu/helpers"
+	"github.com/OpenCCTV/gpu/gpu/helpers"
 )
 
 const (

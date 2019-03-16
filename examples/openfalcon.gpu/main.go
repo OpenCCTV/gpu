@@ -8,9 +8,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/MonitorMetrics/falcon_helpers/agent"
-	"github.com/MonitorMetrics/falcon_helpers/model"
-	"github.com/MonitorMetrics/gpu/gpu"
+	"github.com/OpenCCTV/falcon_helpers/agent"
+	"github.com/OpenCCTV/falcon_helpers/model"
+	"github.com/OpenCCTV/gpu/gpu"
 )
 
 var (
