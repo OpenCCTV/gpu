@@ -29,7 +29,7 @@ func Gets(debug bool) (m *[]map[string]interface{}, err error) {
 		return
 	}
 
-	cmd := exec.Command("bash", "-c", pathBin)
+	cmd := exec.Command("bash", "-c", "/usr/bin/nvidia-smi -pm 1 > /dev/null &&" + pathBin)
 	out, err := cmd.Output()
 	if err != nil {
 		return
