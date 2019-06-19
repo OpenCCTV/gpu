@@ -17,7 +17,7 @@ const (
 // Get display(GPU) venrder info by `lshw`.
 func GuessGPUVendors() (vendors []string, err error) {
 	_cmd := `lshw -c display | grep vendor`
-	out, err := exec.Command("bash", "-c", _cmd).Output()
+	out, err := exec.Command("/bin/bash", "-c", _cmd).Output()
 	if err != nil {
 		log.Println(fmt.Sprintf("[error] issue command failed -%s-", _cmd))
 
