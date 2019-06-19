@@ -48,8 +48,8 @@ Collect NVIDIA GPU cards stats requried nvidia-352 `/usr/bin/nvidia-smi`
 
 Build example
 
-	go get -v github.com/MonitorMetrics/redis
-	cd $GOPATH/src/github.com/MonitorMetrics/redis/examples/json.gpu
+	go get -v github.com/OpenCCTV/gpu/gpu
+	cd $GOPATH/src/github.com/OpenCCTV/gpu/examples/json.gpu
 	go build -o json.gpu.bin
 
 
