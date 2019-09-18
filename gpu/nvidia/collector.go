@@ -5,33 +5,92 @@ package GPUNvidia
 
 import (
 	"bytes"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 	"time"
-
-	"github.com/OpenCCTV/gpu/gpu/helpers"
 )
 
 const (
-	pathBin = "/usr/bin/nvidia-smi"
+	//pathBin = "/usr/bin/nvidia-smi"
+	pathBin = "nvidia-smi"
 )
+
+// 删除输出内容中的\x00和多余的空格
+func trimOutput(buffer bytes.Buffer) string {
+	return strings.TrimSpace(string(bytes.TrimRight(buffer.Bytes(), "\x00")))
+}
+
+func ExecCommand(cmdString string, timeoutInSeconds int) (out []byte, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "/bin/bash", "-c", cmdString)
+
+	t1 := time.Now() // get current time
+
+	cmd.Env = append(os.Environ(),
+		"COLUMNS=512", // overwrite montherfuck monkey hard-coded COLUMNS=80 in golang by default
+	)
+
+	elapsed := time.Since(t1)
+	log.Printf("bbbbbbb 111 elapsed: %v, [%v]", elapsed, cmdString)
+
+	out, err = cmd.Output()
+
+	elapsed = time.Since(t1)
+	log.Printf("bbbbbbb 222 elapsed: %v, [%v], [%v]", elapsed, cmdString, string(out))
+
+	// elapsed := time.Since(t1)
+	// log.Printf("bbbbbbb elapsed: %v, [%v]", elapsed, cmdString)
+
+	return
+}
+
+func execShell(cmd string, filterFirst bool) (result []string, e error) {
+	var timeout = 3
+	if len(cmd) == 0 {
+		e = fmt.Errorf("cannot run a empty command")
+		return
+	}
+	stdout, _ := ExecCommand(cmd, timeout)
+
+	result = strings.Split(string(bytes.TrimRight(stdout, "\x00")), "\n")
+	e = nil
+
+	if filterFirst {
+		var i = 0 //过滤掉第一行
+		result = append(result[:i], result[i+1:]...)
+	}
+
+	if len(result) > 0 {
+		result = result[:len(result)-1]
+	}
+
+	return
+}
 
 func Gets(debug bool) (m *[]map[string]interface{}, err error) {
 	result := []map[string]interface{}{}
+	//total := 8
 
 	total, err := getTotalGPU(debug)
 	if err != nil {
+		log.Printf("get total gpu error [%v] [%v]", total, err)
 		return
 	}
 
-	cmd := exec.Command("bash", "-c", "/usr/bin/nvidia-smi -pm 1 > /dev/null &&"+pathBin)
+	log.Printf("total gpu [%v]", total)
+
+	//	cmd := exec.Command("bash", "-c", "export NV_DRIVER=/var/drivers/nvidia/current;export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64;export PATH=$PATH:$NV_DRIVER/bin;nvidia-smi -pm 1 > /dev/null && nvidia-smi")
+	cmd := exec.Command("bash", "-c", "((nvidia-smi -pm 1 > /dev/null && nvidia-smi) || (export NV_DRIVER=/var/drivers/nvidia/current;export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64;export PATH=$PATH:$NV_DRIVER/bin;nvidia-smi -pm 1 > /dev/null && nvidia-smi)) | grep -Eiv \"(fail)|(not)\"")
+
 	out, err := cmd.Output()
 	if err != nil {
+		log.Printf("exce gpu nvidia-smi  fail [%v]", err)
 		return
 	}
 
@@ -64,6 +123,7 @@ func Gets(debug bool) (m *[]map[string]interface{}, err error) {
 	return &result, nil
 }
 
+/*
 func getTotalGPU(debug bool) (total int, err error) {
 	var errmsg string
 
@@ -78,7 +138,7 @@ func getTotalGPU(debug bool) (total int, err error) {
 		return
 	}
 
-	arg := fmt.Sprintf(`%s --list-gpus`, pathBin)
+	arg := fmt.Sprintf("%v --list-gpus", pathBin)
 	cmd := exec.Command("bash", "-c", arg)
 
 	var stdout bytes.Buffer
@@ -99,6 +159,7 @@ func getTotalGPU(debug bool) (total int, err error) {
 					if debug {
 						log.Println(err)
 					}
+					log.Printf("gpu getTotalGPU [%v], [%v]", err, arg)
 					return
 				}
 			}
@@ -106,6 +167,7 @@ func getTotalGPU(debug bool) (total int, err error) {
 			if debug {
 				log.Println(err)
 			}
+			log.Printf("gpu getTotalGPU [%v]", err)
 			return
 		}
 	}
@@ -116,6 +178,7 @@ func getTotalGPU(debug bool) (total int, err error) {
 			log.Println(errmsg)
 		}
 		err = errors.New(errmsg)
+		log.Printf("gpu getTotalGPU [%v]", err)
 		return
 	}
 
@@ -125,6 +188,7 @@ func getTotalGPU(debug bool) (total int, err error) {
 			log.Println(stderrStr)
 		}
 		err = errors.New(stderrStr)
+		log.Printf("gpu getTotalGPU [%v]", err)
 		return
 	}
 
@@ -134,10 +198,38 @@ func getTotalGPU(debug bool) (total int, err error) {
 			log.Println(stdoutStr)
 		}
 		err = errors.New(stdoutStr)
+		log.Printf("gpu getTotalGPU [%v]", err)
 		return
 	}
 
 	total = len(strings.Split(stdoutStr, "\n"))
+
+	return total, nil
+}
+*/
+
+func getTotalGPU(debug bool) (total int, err error) {
+	/*
+		var errmsg string
+			if _, err = os.Stat(pathBin); os.IsNotExist(err) {
+				errmsg = "stat tool not found"
+				if debug {
+					log.Println(errmsg, pathBin)
+				}
+				err = errors.New(errmsg)
+				return
+			}
+	*/
+	//	arg := fmt.Sprintf("export NV_DRIVER=/var/drivers/nvidia/current;export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64;export PATH=$PATH:$NV_DRIVER/bin;nvidia-smi --list-gpus")
+	arg := fmt.Sprintf("((nvidia-smi --list-gpus) || (export NV_DRIVER=/var/drivers/nvidia/current;export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64;export PATH=$PATH:$NV_DRIVER/bin;nvidia-smi --list-gpus)) | grep -Eiv \"(fail)|(not)\"")
+
+	strs, err := execShell(arg, false)
+
+	total = len(strs)
+
+	if err != nil {
+		return total, err
+	}
 
 	return total, nil
 }

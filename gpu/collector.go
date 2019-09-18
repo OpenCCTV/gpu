@@ -1,10 +1,11 @@
 package metricsGPU
 
 import (
+	"log"
+
 	"github.com/OpenCCTV/gpu/gpu/helpers"
 	"github.com/OpenCCTV/gpu/gpu/intel"
 	"github.com/OpenCCTV/gpu/gpu/nvidia"
-	"log"
 )
 
 type FuncGets func(debug bool) (metrics *[]map[string]interface{}, err error)
@@ -20,10 +21,12 @@ func Gets(debug bool) (*[]map[string]interface{}, error) {
 	vendors, err := helpers.GuessGPUVendors()
 	if err != nil {
 		if debug {
-			log.Fatalln("GuessGPUVendors failed", err)
+			log.Println("GuessGPUVendors failed", err)
 		}
 		return nil, err
 	}
+
+	log.Printf("get gpu vendors=[%v]", vendors)
 
 	uniq := map[string]bool{}
 
