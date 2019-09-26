@@ -47,12 +47,12 @@ func GuessGPUVendors() (vendors []string, err error) {
 				continue
 			}
 			columns := strings.Split(line, ":")
-			if len(columns) != 2 {
+			if len(columns) != 3 {
 				log.Println("parse vendor info failed", line, columns)
 				continue
 			}
 
-			vendor := strings.TrimSpace(columns[1])
+			vendor := strings.TrimSpace(columns[2])
 			vendor = strings.ToLower(vendor)
 			if strings.Index(vendor, "intel") != -1 {
 				vendor = "intel"
